@@ -6,7 +6,10 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "lint:fix": "yarn lint --fix",
+    "format": "prettier \"**/*.{js,json,md,ts,yml}\" --ignore-path .eslintignore --write",
+    "format:check": "prettier --check \"**/*.{js,json,md,ts,yml}\" --ignore-path .eslintignore --loglevel warn"
   },
   "repository": {
     "type": "git",
