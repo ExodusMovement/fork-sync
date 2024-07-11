@@ -1,18 +1,20 @@
-name: "PR Checks"
+name: "Sync fork"
 
-on: [pull_request, push]
+on:
+  schedule:
+    - cron: "0 1 * * *" # Once a day at 01:00 AM
+  workflow_dispatch: # on button click
 
 jobs:
   check_pr:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.6
+        with:
+          ref: master
 
-      - name: "Download dependencies"
+      - name: "Resolve deps"
         run: yarn install --immutable-cache
-
-      - name: "Build"
-        run: yarn build
 
       - name: "Synchronize self"
         id: fork-sync

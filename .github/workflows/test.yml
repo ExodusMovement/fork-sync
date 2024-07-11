@@ -1,0 +1,15 @@
+name: "PR Checks"
+
+on: [pull_request]
+
+jobs:
+  check_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.6
+
+      - name: "Download dependencies"
+        run: yarn install --immutable-cache
+
+      - name: "Lint"
+        run: yarn lint
