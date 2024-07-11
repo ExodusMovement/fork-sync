@@ -14,6 +14,6 @@ jobs:
       - name: "Build"
         run: yarn build
 
-      - name: "Test Locally"
-        id: test-action
+      - name: "Synchronize self"
+        id: fork-sync
         uses: ./
