@@ -8,11 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4.1.6
 
-      - name: "npm ci"
-        run: npm ci
+      - name: "Download dependencies"
+        run: yarn install --frozen-lockfile
 
-      - name: "npm run build"
-        run: npm run build
+      - name: "Build"
+        run: yarn build
 
       - name: "Test Locally"
         id: test-action
