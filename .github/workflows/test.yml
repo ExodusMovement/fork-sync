@@ -1,0 +1,19 @@
+name: "PR Checks"
+
+on: [pull_request, push]
+
+jobs:
+  check_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.6
+
+      - name: "npm ci"
+        run: npm ci
+
+      - name: "npm run build"
+        run: npm run build
+
+      - name: "Test Locally"
+        id: test-action
+        uses: ./
