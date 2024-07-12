@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prepare": "husky install",
-    "build": "tsc",
+    "build": "ncc build src/main.ts --source-map -o lib",
     "lint": "eslint .",
     "lint:fix": "yarn lint --fix",
     "format": "prettier \"**/*.{js,json,md,ts,yml}\" --ignore-path .eslintignore --write",
@@ -24,6 +24,7 @@
     "@types/node": "^20.13.0",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
+    "@vercel/ncc": "^0.38.1",
     "eslint": "^8.56.0",
     "eslint-import-resolver-typescript": "^2.7.1",
     "husky": "^8.0.3",
