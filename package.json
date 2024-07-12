@@ -4,6 +4,7 @@
   "description": "Keep your fork up to date",
   "main": "lib/main.js",
   "license": "UNLICENSED",
+  "prettier": "@exodus/prettier",
   "scripts": {
     "prepare": "husky install",
     "build": "ncc build src/main.ts --source-map -o lib",
