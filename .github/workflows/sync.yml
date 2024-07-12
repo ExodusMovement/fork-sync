@@ -1,4 +1,4 @@
-name: "Sync fork"
+name: 'Sync fork'
 
 on:
   workflow_dispatch: # on button click
@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
         with:
-          node-version-file: ".nvmrc"
+          node-version-file: '.nvmrc'
 
       - name: Restore yarn cache
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
@@ -32,6 +32,6 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: "Synchronize self"
+      - name: 'Synchronize self'
         id: fork-sync
         uses: ./

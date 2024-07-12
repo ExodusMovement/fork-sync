@@ -1,33 +1,33 @@
-import * as core from "@actions/core";
-import * as Github from "@actions/github";
-import { Octokit } from "@octokit/rest";
+import * as core from '@actions/core'
+import * as Github from '@actions/github'
+import { Octokit } from '@octokit/rest'
 
-const token = core.getInput("token", { required: true });
-const context = Github.context;
+const token = core.getInput('token', { required: true })
+const context = Github.context
 
 async function run() {
-  let owner = core.getInput("owner", { required: false }) || context.repo.owner;
-  let repo = core.getInput("repo", { required: false }) || context.repo.repo;
-  const base = core.getInput("base", { required: false });
-  const head = core.getInput("head", { required: false });
-  const mergeMethod = core.getInput("merge_method", { required: false });
-  const prTitle = core.getInput("pr_title", { required: false });
-  const prMessage = core.getInput("pr_message", { required: false });
-  const ignoreFail = core.getBooleanInput("ignore_fail", { required: false });
-  const autoApprove = core.getBooleanInput("auto_approve", { required: false });
-  const autoMerge = core.getBooleanInput("auto_merge", { required: false });
+  let owner = core.getInput('owner', { required: false }) || context.repo.owner
+  let repo = core.getInput('repo', { required: false }) || context.repo.repo
+  const base = core.getInput('base', { required: false })
+  const head = core.getInput('head', { required: false })
+  const mergeMethod = core.getInput('merge_method', { required: false })
+  const prTitle = core.getInput('pr_title', { required: false })
+  const prMessage = core.getInput('pr_message', { required: false })
+  const ignoreFail = core.getBooleanInput('ignore_fail', { required: false })
+  const autoApprove = core.getBooleanInput('auto_approve', { required: false })
+  const autoMerge = core.getBooleanInput('auto_merge', { required: false })
 
-  const octokit = new Octokit({ auth: token });
+  const octokit = new Octokit({ auth: token })
 
   const r = await octokit.rest.repos.get({
     owner,
     repo,
-  });
+  })
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (r && r.data && r.data.parent) {
-    owner = r.data.parent.owner.login || owner;
-    repo = r.data.parent.name || repo;
+    owner = r.data.parent.owner.login || owner
+    repo = r.data.parent.name || repo
   }
 
   try {
@@ -35,65 +35,65 @@ async function run() {
       owner: context.repo.owner,
       repo: context.repo.repo,
       title: prTitle,
-      head: owner + ":" + head,
+      head: owner + ':' + head,
       base,
       body: prMessage,
       maintainer_can_modify: false,
-    });
-    await delay(20);
+    })
+    await delay(20)
     if (autoApprove) {
       await octokit.rest.pulls.createReview({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: pr.data.number,
-        event: "COMMENT",
-        body: "Auto approved",
-      });
+        event: 'COMMENT',
+        body: 'Auto approved',
+      })
       await octokit.rest.pulls.createReview({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: pr.data.number,
-        event: "APPROVE",
-      });
+        event: 'APPROVE',
+      })
     }
 
     if (autoMerge) {
       switch (mergeMethod) {
-        case "merge": {
+        case 'merge': {
           await octokit.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
-            merge_method: "merge",
-          });
+            merge_method: 'merge',
+          })
 
-          break;
+          break
         }
 
-        case "rebase": {
+        case 'rebase': {
           await octokit.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
-            merge_method: "rebase",
-          });
+            merge_method: 'rebase',
+          })
 
-          break;
+          break
         }
 
-        case "squash": {
+        case 'squash': {
           await octokit.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
-            merge_method: "squash",
-          });
+            merge_method: 'squash',
+          })
 
-          break;
+          break
         }
 
         default: {
-          core.setFailed(`Unknown merge_method: ${mergeMethod}`);
+          core.setFailed(`Unknown merge_method: ${mergeMethod}`)
         }
       }
     }
@@ -101,46 +101,35 @@ async function run() {
   } catch (error: any) {
     if (error?.request?.request?.retryCount) {
       console.log(
-        `request failed after ${error.request.request.retryCount} retries with a delay of ${error.request.request.retryAfter}`,
-      );
+        `request failed after ${error.request.request.retryCount} retries with a delay of ${error.request.request.retryAfter}`
+      )
     }
 
     if (
-      (error?.errors ??
-        error?.response?.data?.errors)?.[0]?.message?.startsWith(
-        "No commits between",
+      (error?.errors ?? error?.response?.data?.errors)?.[0]?.message?.startsWith(
+        'No commits between'
       )
     ) {
       console.log(
-        "No commits between " +
-          context.repo.owner +
-          ":" +
-          base +
-          " and " +
-          owner +
-          ":" +
-          head,
-      );
+        'No commits between ' + context.repo.owner + ':' + base + ' and ' + owner + ':' + head
+      )
     } else if (
-      (error?.errors ??
-        error?.response?.data?.errors)?.[0]?.message?.startsWith(
-        "A pull request already exists for",
+      (error?.errors ?? error?.response?.data?.errors)?.[0]?.message?.startsWith(
+        'A pull request already exists for'
       )
     ) {
       // we were already done
-      console.log(error.errors[0].message);
+      console.log(error.errors[0].message)
     } else {
       if (!ignoreFail) {
-        core.setFailed(
-          `Failed to create or merge pull request: ${error ?? "[n/a]"}`,
-        );
+        core.setFailed(`Failed to create or merge pull request: ${error ?? '[n/a]'}`)
       }
     }
   }
 }
 
 function delay(s: number) {
-  return new Promise((resolve) => setTimeout(resolve, s * 1000));
+  return new Promise((resolve) => setTimeout(resolve, s * 1000))
 }
 
-run();
+run()
