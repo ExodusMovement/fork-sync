@@ -11,8 +11,12 @@ inputs:
   repo:
     description: 'Name of the forked repository'
     required: false
-  token:
-    description: 'Token for the github API'
+  write_token:
+    description: 'Github token with write access for creating PRs on the target repo'
+    required: false
+    default: ${{ github.token }}
+  read_token:
+    description: 'Github token with read access to the original repo'
     required: false
     default: ${{ github.token }}
   head:
