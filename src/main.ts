@@ -108,19 +108,13 @@ async function run() {
       )
     }
 
-    if (
-      (error?.errors ?? error?.response?.data?.errors)?.[0]?.message?.startsWith(
-        'No commits between'
-      )
-    ) {
-      console.log(
-        'No commits between ' + context.repo.owner + ':' + base + ' and ' + owner + ':' + head
-      )
-    } else if (
-      (error?.errors ?? error?.response?.data?.errors)?.[0]?.message?.startsWith(
-        'A pull request already exists for'
-      )
-    ) {
+    const errorMsg = (error?.errors ?? error?.response?.data?.errors)?.[0]?.message
+    if (errorMsg?.startsWith('No commits between')) {
+      const headDesc = headRepo ? `${headRepo}:${head}` : `${owner}:${repo}:${head}`
+      const baseDesc = `${context.repo.owner}:${context.repo.repo}:${base}`
+
+      console.log(`No commits between ${headDesc} and ${baseDesc}`)
+    } else if (errorMsg?.startsWith('A pull request already exists for')) {
       // we were already done
       console.log(error.errors[0].message)
     } else {
