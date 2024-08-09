@@ -3,7 +3,6 @@ import * as Github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 
 const writeToken = core.getInput('write_token', { required: true })
-const readToken = core.getInput('read_token', { required: true })
 
 const context = Github.context
 
@@ -21,9 +20,8 @@ async function run() {
   const autoMerge = core.getBooleanInput('auto_merge', { required: false })
 
   const writeClient = new Octokit({ auth: writeToken })
-  const readClient = new Octokit({ auth: readToken })
 
-  const r = await readClient.rest.repos.get({
+  const r = await writeClient.rest.repos.get({
     owner,
     repo,
   })
