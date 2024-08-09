@@ -2,8 +2,7 @@ import * as core from '@actions/core'
 import * as Github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 
-const writeToken = core.getInput('write_token', { required: true })
-const readToken = core.getInput('read_token', { required: true })
+const token = core.getInput('write_token', { required: true })
 
 const context = Github.context
 
@@ -20,10 +19,9 @@ async function run() {
   const autoApprove = core.getBooleanInput('auto_approve', { required: false })
   const autoMerge = core.getBooleanInput('auto_merge', { required: false })
 
-  const writeClient = new Octokit({ auth: writeToken })
-  const readClient = new Octokit({ auth: readToken })
+  const client = new Octokit({ auth: token, log: console })
 
-  const r = await readClient.rest.repos.get({
+  const r = await client.rest.repos.get({
     owner,
     repo,
   })
@@ -35,7 +33,7 @@ async function run() {
   }
 
   try {
-    const pr = await writeClient.rest.pulls.create({
+    const pr = await client.rest.pulls.create({
       owner: context.repo.owner,
       repo: context.repo.repo,
       title: prTitle,
@@ -48,14 +46,14 @@ async function run() {
 
     await delay(20)
     if (autoApprove) {
-      await writeClient.rest.pulls.createReview({
+      await client.rest.pulls.createReview({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: pr.data.number,
         event: 'COMMENT',
         body: 'Auto approved',
       })
-      await writeClient.rest.pulls.createReview({
+      await client.rest.pulls.createReview({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: pr.data.number,
@@ -66,7 +64,7 @@ async function run() {
     if (autoMerge) {
       switch (mergeMethod) {
         case 'merge': {
-          await writeClient.rest.pulls.merge({
+          await client.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
@@ -77,7 +75,7 @@ async function run() {
         }
 
         case 'rebase': {
-          await writeClient.rest.pulls.merge({
+          await client.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
@@ -88,7 +86,7 @@ async function run() {
         }
 
         case 'squash': {
-          await writeClient.rest.pulls.merge({
+          await client.rest.pulls.merge({
             owner: context.repo.owner,
             repo: context.repo.repo,
             pull_number: pr.data.number,
